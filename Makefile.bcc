@@ -1,0 +1,76 @@
+CPP        = bcc32
+CPP32      = cpp32
+LIBRARIAN  = tlib /P128
+LINKER     = ilink32
+RC         = brc32
+                           #######################################
+SRCDIR = ./src
+SOURCES = $(SRCDIR)/dataparser.cpp\
+          $(SRCDIR)/dbstruct.cpp\
+          $(SRCDIR)/freader.cpp\
+          $(SRCDIR)/getopt.cpp\
+          $(SRCDIR)/misc.cpp
+
+###################################################################
+#
+# Set any compiler options
+
+CCOPTS = -O2 -tWM- -tWC -L"$(MAKEDIR)/../Lib" -I"$(MAKEDIR)/../Include" -I"./src"
+LINKFLAGS= -ap -Tpe -L"$(MAKEDIR)/../Lib"
+# Для ulink линкера от Юрия Харона
+# LINKFLAGS= -Gi- -ap -Ge -Tpe -O -x -L"$(MAKEDIR)\..\Lib"
+LINKSTARTUP= c0x32.obj
+LINKLIBS=cw32.lib import32.lib
+
+!if $(DEBUG)
+DBGOPT= -v -N -x -xp
+OBJDIR = .\Debug
+LINKFLAGS =$(LINKFLAGS) -Gn
+!else
+OBJDIR = .\Release
+LINKFLAGS =$(LINKFLAGS) -Gn
+!endif 
+
+CPPFLAGS= $(CCOPTS) $(DBGOPT) $(CCLINKOPT)
+
+
+###################################################################
+#
+# MAIN
+
+#TEMP = $(SOURCE:.cpp=.obj)
+#OBJECTS = $(SOURCE:$(SRCDIR)=$(OBJDIR))
+OBJECTS = $(OBJDIR)\dataparser.obj\
+          $(OBJDIR)\dbstruct.obj\
+          $(OBJDIR)\freader.obj\
+          $(OBJDIR)\getopt.obj\
+          $(OBJDIR)\misc.obj
+
+all : mk_dir cro2sql.exe test.exe
+without_test : mk_dir cro2sql.exe
+
+
+cro2sql.exe : $(OBJECTS) $(OBJDIR)\main.obj
+	$(LINKER) $(LINKFLAGS) $(LINKSTARTUP) $(OBJECTS) $(OBJDIR)\main.obj,$(OBJDIR)\cro2sql.exe,,$(LINKLIBS)
+
+test.exe : $(OBJECTS) $(OBJDIR)\test.obj
+	$(LINKER) $(LINKFLAGS) $(LINKSTARTUP) $(OBJECTS) $(OBJDIR)\test.obj,$(OBJDIR)\test.exe,,$(LINKLIBS)
+$(OBJDIR)\test.obj : test\test.cpp
+	$(CPP) -c $(CPPFLAGS) -o$(OBJDIR)\test.obj test\test.cpp
+
+# implicit rules
+{$(SRCDIR)}.cpp{$(OBJDIR)}.obj:
+	$(CPP) -c $(CPPFLAGS) -o$(OBJDIR)\$&.obj $<
+
+# directory
+
+DEL_FILE        = del /Q
+DEL_DIR         = rmdir /Q /S
+CHK_DIR_NEXISTS = if not exist
+CHK_DIR_EXISTS  = if exist
+MKDIR           = mkdir
+
+mk_dir:
+	-@$(CHK_DIR_NEXISTS) "$(OBJDIR)" $(MKDIR) "$(OBJDIR)"
+clean:
+	-@$(CHK_DIR_EXISTS) "$(OBJDIR)" $(DEL_DIR) "$(OBJDIR)"
