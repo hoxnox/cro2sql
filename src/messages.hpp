@@ -51,7 +51,6 @@ string GetFullHelp()
   stringstream output;
   output << "CRO2SQL(1)                                                           CRO2SQL(1)\n\
 \n\
-(c) 2008 Носов Юрий Александрович (hoxnox@gmail.com)\n\
 Все вопросы по работе приложения направлять cro2sql@gmail.com\n\
 \n\
 NAME\n\
