@@ -433,7 +433,7 @@ string CDataParser::fetch_field_data(std::string str, CField * field)
     }
   }
 
-  if(field->sql_type == db->TYPE_DATE)
+  if(field->sql_type == db->TYPE_DATE && str.length() >= 6+4)
       result ="DATE '" + str.substr(6, 4) + "-" + str.substr(3, 2) + "-" + str.substr(0, 2) + "'";
 
   if( field->sql_type != db->TYPE_NUMBER && field->sql_type != db->TYPE_DATE && field->sql_type != db->TYPE_LONG && field->sql_type != db->TYPE_FLOAT )
